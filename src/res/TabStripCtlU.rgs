@@ -1,0 +1,11 @@
+HKCR
+{
+	NoRemove AppID
+	{
+		'%APPID%' = s 'TabStripCtlU'
+		'TabStripCtlU.OCX'
+		{
+			val AppID = s '%APPID%'
+		}
+	}
+}

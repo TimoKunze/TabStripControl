@@ -1,0 +1,9 @@
+; TabStripCtlA.def: Declares the module parameters. (ANSI version)
+
+LIBRARY      "TabStripCtlA.ocx"
+
+EXPORTS
+	DllCanUnloadNow		PRIVATE
+	DllGetClassObject	PRIVATE
+	DllRegisterServer	PRIVATE
+	DllUnregisterServer	PRIVATE

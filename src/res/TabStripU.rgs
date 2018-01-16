@@ -1,0 +1,43 @@
+HKCR
+{
+	TabStripCtlU.TabStrip.1 = s 'TimoSoft TabStrip Control 1.10 (Unicode)'
+	{
+		CLSID = s '{6A9FA9A8-01D1-4d3a-B795-9614BFA4C419}'
+		'Insertable'
+	}
+	TabStripCtlU.TabStrip = s 'TimoSoft TabStrip Control 1.10 (Unicode)'
+	{
+		CLSID = s '{6A9FA9A8-01D1-4d3a-B795-9614BFA4C419}'
+		CurVer = s 'TabStripCtlU.TabStrip.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {6A9FA9A8-01D1-4d3a-B795-9614BFA4C419} = s 'TimoSoft TabStrip Control 1.10 (Unicode)'
+		{
+			ProgID = s 'TabStripCtlU.TabStrip.1'
+			VersionIndependentProgID = s 'TabStripCtlU.TabStrip'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			ForceRemove 'Implemented Categories'
+			{
+				'{40FC6ED4-2438-11CF-A3DB-080036F12502}'
+				'{0DE86A57-2BAA-11CF-A229-00AA003D7352}'
+				'{0DE86A53-2BAA-11CF-A229-00AA003D7352}'
+				'{157083E0-2368-11CF-87B9-00AA006C8166}'
+			}
+			val AppID = s '%APPID%'
+			ForceRemove 'Control'
+			ForceRemove 'Insertable'
+			ForceRemove 'ToolboxBitmap32' = s '%MODULE%, 1'
+			'MiscStatus' = s '0'
+			{
+				'1' = s '%OLEMISC%'
+			}
+			'TypeLib' = s '{E7BB2F30-C5DD-4370-B7E2-19A7EDF169EE}'
+			'Version' = s '1.10'
+		}
+	}
+}

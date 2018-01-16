@@ -1,0 +1,25 @@
+HKCR
+{
+	TabStripCtlU.TabStripTabs.1 = s 'TimoSoft TabStripTabs Class 1.10 (Unicode)'
+	{
+		CLSID = s '{C5C92149-E522-4478-9629-0151A4197CEC}'
+	}
+	TabStripCtlU.TabStripTabs = s 'TimoSoft TabStripTabs Class (Unicode)'
+	{
+		CLSID = s '{C5C92149-E522-4478-9629-0151A4197CEC}'
+		CurVer = s 'TabStripCtlU.TabStripTabs.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {C5C92149-E522-4478-9629-0151A4197CEC} = s 'TimoSoft TabStripTabs Class (Unicode)'
+		{
+			ProgID = s 'TabStripCtlU.TabStripTabs.1'
+			VersionIndependentProgID = s 'TabStripCtlU.TabStripTabs'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{E7BB2F30-C5DD-4370-B7E2-19A7EDF169EE}'
+		}
+	}
+}

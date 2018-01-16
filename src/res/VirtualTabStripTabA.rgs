@@ -1,0 +1,25 @@
+HKCR
+{
+	TabStripCtlA.VirtualTabStripTab.1 = s 'TimoSoft VirtualTabStripTab Class 1.10 (ANSI)'
+	{
+		CLSID = s '{E5C435A1-1AAE-4489-9F43-4953FFFBCCAA}'
+	}
+	TabStripCtlA.VirtualTabStripTab = s 'TimoSoft VirtualTabStripTab Class (ANSI)'
+	{
+		CLSID = s '{E5C435A1-1AAE-4489-9F43-4953FFFBCCAA}'
+		CurVer = s 'TabStripCtlA.VirtualTabStripTab.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {E5C435A1-1AAE-4489-9F43-4953FFFBCCAA} = s 'TimoSoft VirtualTabStripTab Class (ANSI)'
+		{
+			ProgID = s 'TabStripCtlA.VirtualTabStripTab.1'
+			VersionIndependentProgID = s 'TabStripCtlA.VirtualTabStripTab'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{3DF28271-B5ED-46F4-9EFF-E60A4CDD0D02}'
+		}
+	}
+}

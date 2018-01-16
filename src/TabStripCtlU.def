@@ -1,0 +1,9 @@
+; TabStripCtlU.def: Declares the module parameters. (Unicode version)
+
+LIBRARY      "TabStripCtlU.ocx"
+
+EXPORTS
+	DllCanUnloadNow		PRIVATE
+	DllGetClassObject	PRIVATE
+	DllRegisterServer	PRIVATE
+	DllUnregisterServer	PRIVATE

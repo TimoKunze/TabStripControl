@@ -1,0 +1,25 @@
+HKCR
+{
+	TabStripCtlA.TabStripTabContainer.1 = s 'TimoSoft TabStripTabContainer Class 1.10 (ANSI)'
+	{
+		CLSID = s '{99A4E46A-B01D-4bf8-9318-BB17BE6D7034}'
+	}
+	TabStripCtlA.TabStripTabContainer = s 'TimoSoft TabStripTabContainer Class (ANSI)'
+	{
+		CLSID = s '{99A4E46A-B01D-4bf8-9318-BB17BE6D7034}'
+		CurVer = s 'TabStripCtlA.TabStripTabContainer.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {99A4E46A-B01D-4bf8-9318-BB17BE6D7034} = s 'TimoSoft TabStripTabContainer Class (ANSI)'
+		{
+			ProgID = s 'TabStripCtlA.TabStripTabContainer.1'
+			VersionIndependentProgID = s 'TabStripCtlA.TabStripTabContainer'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{3DF28271-B5ED-46F4-9EFF-E60A4CDD0D02}'
+		}
+	}
+}

@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "General", "General", "{9D7F5F86-B24D-4622-8D01-B6774EF1221C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CloseableTabs", "General\Closeable Tabs\CloseableTabs.vcxproj", "{868F2F3E-1DA1-48EF-80F8-451C4AB34689}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DragDrop", "General\Drag'n'Drop\DragDrop.vcxproj", "{5019D0CE-98FB-4DED-8571-C0A154C78B3F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Events", "General\Events\Events.vcxproj", "{5B348B1A-A361-4104-AA66-7090BBE76B2C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{868F2F3E-1DA1-48EF-80F8-451C4AB34689}.Debug|Win32.ActiveCfg = Debug|Win32
+		{868F2F3E-1DA1-48EF-80F8-451C4AB34689}.Debug|Win32.Build.0 = Debug|Win32
+		{868F2F3E-1DA1-48EF-80F8-451C4AB34689}.Release|Win32.ActiveCfg = Release|Win32
+		{868F2F3E-1DA1-48EF-80F8-451C4AB34689}.Release|Win32.Build.0 = Release|Win32
+		{5019D0CE-98FB-4DED-8571-C0A154C78B3F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5019D0CE-98FB-4DED-8571-C0A154C78B3F}.Debug|Win32.Build.0 = Debug|Win32
+		{5019D0CE-98FB-4DED-8571-C0A154C78B3F}.Release|Win32.ActiveCfg = Release|Win32
+		{5019D0CE-98FB-4DED-8571-C0A154C78B3F}.Release|Win32.Build.0 = Release|Win32
+		{5B348B1A-A361-4104-AA66-7090BBE76B2C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5B348B1A-A361-4104-AA66-7090BBE76B2C}.Debug|Win32.Build.0 = Debug|Win32
+		{5B348B1A-A361-4104-AA66-7090BBE76B2C}.Release|Win32.ActiveCfg = Release|Win32
+		{5B348B1A-A361-4104-AA66-7090BBE76B2C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{868F2F3E-1DA1-48EF-80F8-451C4AB34689} = {9D7F5F86-B24D-4622-8D01-B6774EF1221C}
+		{5019D0CE-98FB-4DED-8571-C0A154C78B3F} = {9D7F5F86-B24D-4622-8D01-B6774EF1221C}
+		{5B348B1A-A361-4104-AA66-7090BBE76B2C} = {9D7F5F86-B24D-4622-8D01-B6774EF1221C}
+	EndGlobalSection
+EndGlobal

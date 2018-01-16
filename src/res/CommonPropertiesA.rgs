@@ -1,0 +1,25 @@
+HKCR
+{
+	TabStripCtlA.CommonProperties.1 = s 'TimoSoft CommonProperties Class 1.10 (ANSI)'
+	{
+		CLSID = s '{5092F8FC-E5E3-4ee9-9086-CFE542AB4121}'
+	}
+	TabStripCtlA.CommonProperties = s 'TimoSoft CommonProperties Class (ANSI)'
+	{
+		CLSID = s '{5092F8FC-E5E3-4ee9-9086-CFE542AB4121}'
+		CurVer = s 'TabStripCtlA.CommonProperties.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {5092F8FC-E5E3-4ee9-9086-CFE542AB4121} = s 'TimoSoft CommonProperties Class (ANSI)'
+		{
+			ProgID = s 'TabStripCtlA.CommonProperties.1'
+			VersionIndependentProgID = s 'TabStripCtlA.CommonProperties'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{3DF28271-B5ED-46F4-9EFF-E60A4CDD0D02}'
+		}
+	}
+}

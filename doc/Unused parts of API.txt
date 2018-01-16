@@ -1,0 +1,30 @@
+The following parts of the SysTabControl32 API (Windows 10) are not used:
+
+Control styles:
+---------------
+- TCS_FOCUSNEVER (https://msdn.microsoft.com/en-us/library/ms650931.aspx)
+	-> would require different OLEMISC_* flags and therefore can't be implemented without creating an additional control
+
+Messages:
+---------
+- TCM_REMOVEIMAGE (https://msdn.microsoft.com/en-us/library/ms651064.aspx)
+	-> questionable benefits
+	-> can be used easily via SendMessage()
+- TCM_SETITEMEXTRA (https://msdn.microsoft.com/en-us/library/ms651070.aspx)
+	-> too difficult to handle, because we would need a way to make the ITabStripTab::TabData property accept data of the correct size only
+	-> probably noone really needs this feature
+
+Notifications:
+--------------
+- TCN_KEYDOWN (https://msdn.microsoft.com/en-us/library/ms650956.aspx)
+	-> doesn't seem to have any benefit over WM_KEYDOWN
+
+Flags:
+------
+- TCITEM/TCIF_RTLREADING (https://msdn.microsoft.com/en-us/library/ms650940.aspx)
+	-> can't be used because there's no way to retrieve whether a tab has this flag set
+
+Other:
+------
+- Support for multiple (drop-)highlighted tabs
+	-> SysTabControl32 can have more than one highlighted tab at once
