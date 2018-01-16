@@ -1,0 +1,199 @@
+Version 1.10.3 - DD/MM/YYYY
+
+- Project published on GitHub.
+
+
+
+Version 1.10.2 - 31/07/2016
+
+- Fixed some memory leaks that occurred when firing certain events.
+
+
+
+Version 1.10.1 - 26/01/2016
+
+- FIX: The control could crash during OLE drag'n'drop.
+- FIX: The control could crash the other process during OLE drag'n'drop, especially when IOLEDataObject::SetDropDescription() had been called.
+
+
+
+Version 1.10.0 - 23/01/2016
+
+- Added the ITabStrip::FinishOLEDragDrop method. It should not be used if not really needed. It can be used to hide the drag image if execution of the OLEDragDrop event takes a long time or if a message is displayed from within this event.
+
+
+
+Version 1.9.0 - 13/09/2015
+
+- Added the ITabStripTab::HasCloseButton property.
+- Initial support for Windows 10.
+
+
+
+Version 1.8.0 - 20/07/2014
+
+- Added the XClick, and XDblClick events for support of the extended mouse buttons.
+- Extended the Mouse* events to support the extended mouse buttons.
+- FIX: The Font and MouseIcon properties could leak GDI resources.
+- Initial support for Windows 8.1.
+
+
+
+Version 1.7.0 - 21/09/2013
+
+- Added the ITabStrip::CloseableTabsMode property.
+
+
+
+Version 1.6.0 - 05/04/2013
+
+- Performance improvements.
+
+
+
+Version 1.5.2 - 13/01/2013
+
+- FIX: The last character of the tab text could not be used as accelerator key.
+- FIX: The ResizedControlWindow event was not fired when it should have been fired.
+- FIX: Drawing issues could occur if a windowless control was placed inside the control.
+- Initial support for Windows 8.
+
+
+
+Version 1.5.1 - 02/03/2012
+
+- Fixed a memory leak that occurred during drag'n'drop if Aero drag-images have been used.
+- Reimplemented the subclassing code of the VB6 samples to make it more robust.
+
+
+
+Version 1.5.0 - 01/11/2011
+
+- Added the ITabStripTab::hAssociatedWindow property.
+
+
+
+Version 1.4.1 - 21/05/2011
+
+- FIX: Disabling the control did not move the keyboard focus to the next control in the tab order.
+- FIX: The ResizedControlWindow event was fired when actually nothing had changed.
+
+
+
+Version 1.4.0 - 08/01/2011
+
+- FIX: The control could crash when it was destroyed.
+- FIX: Due do a bug in Microsoft ATL, the control could lose keyboard focus when it shouldn't. This problem occured in MDI applications only. Many thanks to Peter Schellenbach for his help.
+- Switched to Visual C++ 2010 and dropped support for Windows 2000.
+
+
+
+Version 1.3.2 - 07/11/2010
+
+- FIX: IOLEDataObject::SetDropDescription could cause crashes in other programs.
+
+
+
+Version 1.3.1 - 02/01/2010
+
+- Fixed a potential problem with persistance.
+- Improved support for Aero drag images.
+- FIX: If the control was placed on a Form for which the KeyPreview feature was activated, the Form_Key* handler didn't receive key strokes like all Alt+PgDown or Alt+Left, if the control had the keyboard focus.
+- FIX: The 'shift' parameter that many events have, often missed the ALT key.
+- Deploy (stripped) symbols with the binaries to make debugging easier. This are the pdb files in case you wonder.
+
+
+
+Version 1.3.0 - 11/07/2009
+
+- Added the ITabStrip::OLEDragImageStyle property.
+- FIX: When using closeable tabs, scrolling tabs could leave some debris around the scroll buttons.
+- Massively reduced the usage of GDI handles.
+- It is no longer necessary to subclass the control's parent window and reflect the WM_CONTEXTMENU message to make the ContextMenu event work.
+- Made some internal changes that will make it easier for me to keep binary compatibility in future.
+
+
+
+Version 1.2.1 - 18/02/2009
+
+- Initial support for Windows 7.
+- Extended the DropDescriptionIconConstants enumeration by 'ddiUseDefault'.
+- Fixed some small OLE drag'n'drop bugs.
+- FIX: The TAB key didn't move the focus to the next control if the control was placed within a VB6 UserControl.
+- FIX: Changing the RightToLeft property at runtime did not fully work if rtlLayout was involved.
+
+
+
+Version 1.2.0 - 31/10/2008
+
+- Added the _ITabStripEvents::OLEDragEnterPotentialTarget event.
+- Added the _ITabStripEvents::OLEDragLeavePotentialTarget event.
+- Added the _ITabStripEvents::OLEReceivedNewData event.
+- FIX: The _ITabStripEvents::FreeTabData event didn't work as expected. The provided tab was always Nothing.
+- FIX: The _ITabStripEvents::MouseLeave event didn't work as expected. It was raised everytime the mouse wheel was scrolled outside the control if the control had the focus.
+- FIX: Ignore calls to IOLEDataObject::SetDropDescription() if the drag image is in classic style.
+- FIX: It wasn't possible to change the active tab using [CTRL]+[TAB] and [SHIFT]+[CTRL]+[TAB].
+- Fixed some GDI handle leaks.
+- Fixed some drawing glitches.
+- Removed the data-binding stuff (it was probably broken anyway).
+- Switched to Visual C++ 2008 and dropped support for Windows 9x, Me and NT 4.0.
+- Improved the documentation.
+
+
+
+Version 1.1.0 - 17/12/2007
+
+- Added the ITabStrip::hHighResImageList property.
+- Added the ITabStripTab::CreateDragImage() method.
+- Added the ITabStripTabContainer::CreateDragImage() method.
+- Added the IOLEDataObject::GetDropDescription() method.
+- Added the IOLEDataObject::SetDropDescription() method.
+- Extended ITabStrip::OLEDrag() by the parameter 'itemCountToDisplay'.
+- Implemented built-in drag-image creation.
+- Rewrote large parts of the drag'n'drop code.
+- FIX: Keyboard input wasn't processed if the control was placed within a VB6 UserControl.
+- FIX: On Windows 98/ME tooltips didn't work.
+- FIX: Changes were not applied implicitly when jumping between multiple instances of the control with the property pages opened.
+- Improved the documentation.
+
+
+
+Version 1.0.4 - 28/02/2007
+
+- Decreased the binaries' size.
+- Improved the documentation.
+- Ported the WTL samples to WTL 8.0.
+- Made the samples DPI aware.
+- Linked the new bug tracking system.
+
+
+
+Version 1.0.3 - 22/09/2006
+
+- FIX: Some controls didn't react as expected to keyboard input when they were placed inside a frame control.
+- FIX: The "Font" and "MouseIcon" properties didn't work as expected.
+- Improved setup.
+
+
+
+Version 1.0.2 - 23/06/2006
+
+- FIX: Moving the control without resizing it could lead to a control width or height of 0.
+- FIX: Tooltips of contained controls could get lost.
+- Changed the way how the control is drawn. This was necessary to make Windows Vista's graphic effects work.
+- Improved the documentation. The categories introduced with the last release have been removed again, but now properties are displayed as such.
+
+
+
+Version 1.0.1 - 24/03/2006
+
+- FIX: Inserting tabs could mess up some internal data structures. This also led to tabs reporting wrong values for the TabData property.
+- FIX: ITabStripTabContainer::RemoveAll() didn't work as expected.
+- FIX: Removing a tab with the ID 0 cleared all tab containers.
+- Improved the documentation. Now there's a category "Modules" with sub categories for each class. Those sub categories are split again into "Properties", "Methods" and "Events".
+
+
+
+Version 1.0.0 - 19/03/2006
+
+- First public release.
