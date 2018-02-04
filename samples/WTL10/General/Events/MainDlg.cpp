@@ -91,7 +91,7 @@ LRESULT CMainDlg::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lP
 		LPWINDOWPOS pDetails = reinterpret_cast<LPWINDOWPOS>(lParam);
 
 		if((pDetails->flags & SWP_NOSIZE) == 0) {
-			WTL::CRect rc;
+			CRect rc;
 			GetClientRect(&rc);
 			int cx = static_cast<int>(0.4 * static_cast<double>(rc.Width()));
 			controls.logEdit.SetWindowPos(NULL, rc.Width() - cx, 0, cx, rc.Height() - 32, 0);
