@@ -921,7 +921,7 @@ HIMAGELIST TabStrip::CreateLegacyDragImage(int tabIndex, LPPOINT pUpperLeftPoint
 	maskMemoryDC.CreateCompatibleDC(hCompatibleDC);
 
 	// calculate the bounding rectangle
-	WTL::CRect tabBoundingRect;
+	CRect tabBoundingRect;
 	SendMessage(TCM_GETITEMRECT, tabIndex, reinterpret_cast<LPARAM>(&tabBoundingRect));
 	if(tabIsActive) {
 		tabBoundingRect.InflateRect(2, 2);
@@ -1134,7 +1134,7 @@ BOOL TabStrip::CreateLegacyOLEDragImage(ITabStripTabContainer* pTabs, LPSHDRAGIM
 			pDragImage->crColorKey = RGB(0xF4, 0x00, 0x00);
 			CBrush backroundBrush;
 			backroundBrush.CreateSolidBrush(pDragImage->crColorKey);
-			memoryDC.FillRect(WTL::CRect(0, 0, bitmapWidth, bitmapHeight), backroundBrush);
+			memoryDC.FillRect(CRect(0, 0, bitmapWidth, bitmapHeight), backroundBrush);
 			ImageList_Draw(hImageList, 0, memoryDC, 0, 0, ILD_NORMAL);
 
 			// clean up
@@ -2597,7 +2597,7 @@ STDMETHODIMP TabStrip::get_DisplayAreaHeight(OLE_YSIZE_PIXELS* pValue)
 	}
 
 	if(IsWindow()) {
-		WTL::CRect rc;
+		CRect rc;
 		GetWindowRect(&rc);
 		ScreenToClient(&rc);
 		SendMessage(TCM_ADJUSTRECT, FALSE, reinterpret_cast<LPARAM>(&rc));
@@ -2654,7 +2654,7 @@ STDMETHODIMP TabStrip::get_DisplayAreaWidth(OLE_XSIZE_PIXELS* pValue)
 	}
 
 	if(IsWindow()) {
-		WTL::CRect rc;
+		CRect rc;
 		GetWindowRect(&rc);
 		ScreenToClient(&rc);
 		SendMessage(TCM_ADJUSTRECT, FALSE, reinterpret_cast<LPARAM>(&rc));
@@ -3718,7 +3718,7 @@ STDMETHODIMP TabStrip::put_RightToLeft(RightToLeftConstants newValue)
 			}
 			if(changingLayout) {
 				// this will force an update of the up-down control's position
-				WTL::CRect clientRectangle;
+				CRect clientRectangle;
 				GetClientRect(&clientRectangle);
 				SendMessage(WM_SIZE, SIZE_RESTORED, MAKELPARAM(clientRectangle.Width(), clientRectangle.Height()));
 			}
@@ -4466,7 +4466,7 @@ STDMETHODIMP TabStrip::GetClosestInsertMarkPosition(OLE_XPOS_PIXELS x, OLE_YPOS_
 	int numberOfTabs = SendMessage(TCM_GETITEMCOUNT, 0, 0);
 	int previousCenter = -100000;
 	for(int tabIndex = 0; tabIndex < numberOfTabs; ++tabIndex) {
-		WTL::CRect tabBoundingRectangle;
+		CRect tabBoundingRectangle;
 		SendMessage(TCM_GETITEMRECT, tabIndex, reinterpret_cast<LPARAM>(&tabBoundingRectangle));
 		if(vertical) {
 			BOOL isFirstInRow = !((tabBoundingRectangle.left <= previousCenter) && (previousCenter <= tabBoundingRectangle.right));
@@ -4856,7 +4856,7 @@ LRESULT TabStrip::OnHScroll(UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lParam
 	if(properties.closeableTabs) {
 		// redraw around the arrow buttons
 		CWindow arrowButtons = GetDlgItem(1);
-		WTL::CRect rc;
+		CRect rc;
 		arrowButtons.GetWindowRect(&rc);
 		rc.InflateRect(5, 5);
 		ScreenToClient(&rc);
@@ -5140,9 +5140,9 @@ LRESULT TabStrip::OnMouseMove(UINT /*message*/, WPARAM wParam, LPARAM lParam, BO
 			if(clickRectHeight < 4) {
 				clickRectHeight = 4;
 			}
-			WTL::CRect rc(dragDropStatus.candidate.position.x - clickRectWidth, dragDropStatus.candidate.position.y - clickRectHeight, dragDropStatus.candidate.position.x + clickRectWidth, dragDropStatus.candidate.position.y + clickRectHeight);
+			CRect rc(dragDropStatus.candidate.position.x - clickRectWidth, dragDropStatus.candidate.position.y - clickRectHeight, dragDropStatus.candidate.position.x + clickRectWidth, dragDropStatus.candidate.position.y + clickRectHeight);
 
-			if(!rc.PtInRect(WTL::CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))) {
+			if(!rc.PtInRect(CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))) {
 				NMTCBEGINDRAG details = {0};
 				details.hdr.idFrom = GetDlgCtrlID();
 				details.hdr.hwndFrom = *this;
@@ -5317,7 +5317,7 @@ LRESULT TabStrip::OnSetCursor(UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lPar
 	BOOL setCursor = FALSE;
 
 	// Are we really over the control?
-	WTL::CRect clientArea;
+	CRect clientArea;
 	GetClientRect(&clientArea);
 	ClientToScreen(&clientArea);
 	DWORD position = GetMessagePos();
@@ -5502,7 +5502,7 @@ LRESULT TabStrip::OnWindowPosChanged(UINT /*message*/, WPARAM /*wParam*/, LPARAM
 {
 	LPWINDOWPOS pDetails = reinterpret_cast<LPWINDOWPOS>(lParam);
 
-	WTL::CRect windowRectangle = m_rcPos;
+	CRect windowRectangle = m_rcPos;
 	/* Ugly hack: We depend on this message being sent without SWP_NOMOVE at least once, but this requirement
 	              not always will be fulfilled. Fortunately pDetails seems to contain correct x and y values
 	              even if SWP_NOMOVE is set.
@@ -6851,7 +6851,7 @@ LRESULT TabStrip::OnSelChangeNotification(int /*controlID*/, LPNMHDR /*pNotifica
 	if(properties.closeableTabs) {
 		// redraw around the arrow buttons
 		CWindow arrowButtons = GetDlgItem(1);
-		WTL::CRect rc;
+		CRect rc;
 		arrowButtons.GetWindowRect(&rc);
 		rc.InflateRect(5, 5);
 		ScreenToClient(&rc);
@@ -7072,9 +7072,9 @@ inline HRESULT TabStrip::Raise_ContextMenu(SHORT button, SHORT shift, OLE_XPOS_P
 				// retrieve the focused tab and propose its rectangle's middle as the menu's position
 				int tabIndex = SendMessage(TCM_GETCURFOCUS, 0, 0);
 				if(tabIndex != -1) {
-					WTL::CRect tabRectangle;
+					CRect tabRectangle;
 					if(SendMessage(TCM_GETITEMRECT, tabIndex, reinterpret_cast<LPARAM>(&tabRectangle))) {
-						WTL::CPoint centerPoint = tabRectangle.CenterPoint();
+						CPoint centerPoint = tabRectangle.CenterPoint();
 						x = centerPoint.x;
 						y = centerPoint.y;
 					}
@@ -7154,8 +7154,8 @@ inline HRESULT TabStrip::Raise_DragMouseMove(SHORT button, SHORT shift, OLE_XPOS
 		handleAutoScroll = TRUE;
 		/* Use a 16 pixels wide border at both ends of the tab bar as the zone for auto-scrolling.
 		   Are we within this zone? */
-		WTL::CPoint mousePos(x, y);
-		WTL::CRect noScrollZone(0, 0, 0, 0);
+		CPoint mousePos(x, y);
+		CRect noScrollZone(0, 0, 0, 0);
 		GetWindowRect(&noScrollZone);
 		ScreenToClient(&noScrollZone);
 
@@ -7600,8 +7600,8 @@ inline HRESULT TabStrip::Raise_OLEDragEnter(IDataObject* pData, DWORD* pEffect, 
 		handleAutoScroll = TRUE;
 		/* Use a 16 pixels wide border at both ends of the tab bar as the zone for auto-scrolling.
 		   Are we within this zone? */
-		WTL::CPoint mousePos(mousePosition.x, mousePosition.y);
-		WTL::CRect noScrollZone(0, 0, 0, 0);
+		CPoint mousePos(mousePosition.x, mousePosition.y);
+		CRect noScrollZone(0, 0, 0, 0);
 		GetWindowRect(&noScrollZone);
 		ScreenToClient(&noScrollZone);
 		BOOL isInScrollZone = noScrollZone.PtInRect(mousePos);
@@ -7755,8 +7755,8 @@ inline HRESULT TabStrip::Raise_OLEDragMouseMove(DWORD* pEffect, DWORD keyState, 
 		handleAutoScroll = TRUE;
 		/* Use a 16 pixels wide border at both ends of the tab bar as the zone for auto-scrolling.
 		   Are we within this zone? */
-		WTL::CPoint mousePos(mousePosition.x, mousePosition.y);
-		WTL::CRect noScrollZone(0, 0, 0, 0);
+		CPoint mousePos(mousePosition.x, mousePosition.y);
+		CRect noScrollZone(0, 0, 0, 0);
 		GetWindowRect(&noScrollZone);
 		ScreenToClient(&noScrollZone);
 
@@ -8435,12 +8435,12 @@ int TabStrip::HitTest(LONG x, LONG y, UINT* pFlags, BOOL ignoreBoundingBoxDefini
 
 	if(tabIndex == -1) {
 		// Are we outside the tab headers?
-		WTL::CRect windowRectangle;
+		CRect windowRectangle;
 		GetWindowRect(&windowRectangle);
 		ScreenToClient(&windowRectangle);
 		if(windowRectangle.PtInRect(hitTestInfo.pt)) {
 			// Are we inside the client area?
-			WTL::CRect clientRectangle(&windowRectangle);
+			CRect clientRectangle(&windowRectangle);
 			SendMessage(TCM_ADJUSTRECT, FALSE, reinterpret_cast<LPARAM>(&clientRectangle));
 			if(clientRectangle.PtInRect(hitTestInfo.pt)) {
 				// bingo
@@ -8467,7 +8467,7 @@ int TabStrip::HitTest(LONG x, LONG y, UINT* pFlags, BOOL ignoreBoundingBoxDefini
 		 * cursor.
 		 */
 		if(properties.closeableTabsMode != ctmDisplayOnActiveTab || mouseStatus.overCloseButtonOnMouseDown >= -1) {
-			WTL::CRect buttonRectangle;
+			CRect buttonRectangle;
 			if(CalculateCloseButtonRectangle(tabIndex, tabIndex == SendMessage(TCM_GETCURSEL, 0, 0), &buttonRectangle)) {
 				if(buttonRectangle.PtInRect(hitTestInfo.pt)) {
 					hitTestInfo.flags = TCHT_CLOSEBUTTON;
@@ -8750,7 +8750,7 @@ BOOL TabStrip::CalculateCloseButtonRectangle(int tabIndex, BOOL tabIsActive, LPR
 		return FALSE;
 	}
 
-	WTL::CRect tabBoundingRectangle;
+	CRect tabBoundingRectangle;
 	if(SendMessage(TCM_GETITEMRECT, tabIndex, reinterpret_cast<LPARAM>(&tabBoundingRectangle))) {
 		*pButtonRectangle = tabBoundingRectangle;
 

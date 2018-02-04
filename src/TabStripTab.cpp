@@ -295,7 +295,7 @@ STDMETHODIMP TabStripTab::get_Height(OLE_YSIZE_PIXELS* pValue)
 	HWND hWndTabStrip = properties.GetTabStripHWnd();
 	ATLASSERT(IsWindow(hWndTabStrip));
 
-	WTL::CRect rc;
+	CRect rc;
 	if(SendMessage(hWndTabStrip, TCM_GETITEMRECT, properties.tabIndex, reinterpret_cast<LPARAM>(&rc))) {
 		*pValue = rc.Height();
 		return S_OK;
@@ -636,7 +636,7 @@ STDMETHODIMP TabStripTab::get_Width(OLE_XSIZE_PIXELS* pValue)
 	HWND hWndTabStrip = properties.GetTabStripHWnd();
 	ATLASSERT(IsWindow(hWndTabStrip));
 
-	WTL::CRect rc;
+	CRect rc;
 	if(SendMessage(hWndTabStrip, TCM_GETITEMRECT, properties.tabIndex, reinterpret_cast<LPARAM>(&rc))) {
 		*pValue = rc.Width();
 		return S_OK;

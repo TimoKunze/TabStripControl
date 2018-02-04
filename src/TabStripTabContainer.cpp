@@ -413,7 +413,7 @@ STDMETHODIMP TabStripTabContainer::CreateDragImage(OLE_XPOS_PIXELS* pXUpperLeft/
 				CAtlArray<RECT> tabBoundingRects;
 			#endif
 			POINT upperLeftPoint = {0};
-			WTL::CRect boundingRect;
+			CRect boundingRect;
 			#ifdef USE_STL
 				for(std::vector<LONG>::iterator iter = properties.tabs.begin(); iter != properties.tabs.end(); ++iter) {
 					int tabIndex = properties.pOwnerTabStrip->IDToTabIndex(*iter);
@@ -449,7 +449,7 @@ STDMETHODIMP TabStripTabContainer::CreateDragImage(OLE_XPOS_PIXELS* pXUpperLeft/
 					#endif
 				}
 			}
-			WTL::CRect dragImageRect(0, 0, boundingRect.Width(), boundingRect.Height());
+			CRect dragImageRect(0, 0, boundingRect.Width(), boundingRect.Height());
 
 			// setup the DCs we'll draw into
 			HDC hCompatibleDC = GetDC(HWND_DESKTOP);
