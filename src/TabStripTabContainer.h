@@ -187,13 +187,13 @@ public:
 
 	/// \brief <em>Adds the specified tab(s) to the collection</em>
 	///
-	/// \param[in] tabs The tab(s) to add. May be either a tab ID, a \c TabStripTab object or a
+	/// \param[in] tabsToAdd The tab(s) to add. May be either a tab ID, a \c TabStripTab object or a
 	///            \c TabStripTabs collection.
 	///
 	/// \return An \c HRESULT error code.
 	///
 	/// \sa TabStripTab::get_ID, Count, Remove, RemoveAll
-	virtual HRESULT STDMETHODCALLTYPE Add(VARIANT tabs);
+	virtual HRESULT STDMETHODCALLTYPE Add(VARIANT tabsToAdd);
 	/// \brief <em>Clones the collection object</em>
 	///
 	/// Retrieves an exact copy of the collection.

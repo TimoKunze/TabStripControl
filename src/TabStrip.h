@@ -5672,10 +5672,10 @@ protected:
 				this->pDraggedTabs->Release();
 				this->pDraggedTabs = NULL;
 			}
-			if(hDragImageList && autoDestroyImgLst) {
-				ImageList_Destroy(hDragImageList);
+			if(this->hDragImageList && autoDestroyImgLst) {
+				ImageList_Destroy(this->hDragImageList);
 			}
-			hDragImageList = NULL;
+			this->hDragImageList = NULL;
 			autoDestroyImgLst = FALSE;
 			dragImageIsHidden = 1;
 			lastDropTarget = -1;
@@ -5699,7 +5699,7 @@ protected:
 		/// \sa dragImageIsHidden, HideDragImage, IsDragImageVisible
 		void ShowDragImage(BOOL commonDragDropOnly)
 		{
-			if(hDragImageList) {
+			if(this->hDragImageList) {
 				--dragImageIsHidden;
 				if(dragImageIsHidden == 0) {
 					ImageList_DragShowNolock(TRUE);
@@ -5720,7 +5720,7 @@ protected:
 		/// \sa dragImageIsHidden, ShowDragImage, IsDragImageVisible
 		void HideDragImage(BOOL commonDragDropOnly)
 		{
-			if(hDragImageList) {
+			if(this->hDragImageList) {
 				++dragImageIsHidden;
 				if(dragImageIsHidden == 1) {
 					ImageList_DragShowNolock(FALSE);
@@ -5747,39 +5747,39 @@ protected:
 		///
 		/// \param[in] hWndTabStrip The tabstrip window, that the method will work on to calculate the position
 		///            of the drag image's hotspot.
-		/// \param[in] pDraggedTabs The \c ITabStripTabContainer implementation of the collection of
+		/// \param[in] pDraggedTbs The \c ITabStripTabContainer implementation of the collection of
 		///            the dragged tabs.
-		/// \param[in] hDragImageList The imagelist containing the drag image that shall be used to
+		/// \param[in] hDragImgLst The imagelist containing the drag image that shall be used to
 		///            visualize the drag'n'drop operation. If -1, the method will create the drag image
 		///            itself; if \c NULL, no drag image will be displayed.
 		/// \param[in,out] pXHotSpot The x-coordinate (in pixels) of the drag image's hotspot relative to the
-		///                drag image's upper-left corner. If the \c hDragImageList parameter is set to
-		///                \c NULL, this parameter is ignored. If the \c hDragImageList parameter is set to
+		///                drag image's upper-left corner. If the \c hDragImgLst parameter is set to
+		///                \c NULL, this parameter is ignored. If the \c hDragImgLst parameter is set to
 		///                -1, this parameter is set to the hotspot calculated by the method.
 		/// \param[in,out] pYHotSpot The y-coordinate (in pixels) of the drag image's hotspot relative to the
-		///                drag image's upper-left corner. If the \c hDragImageList parameter is set to
-		///                \c NULL, this parameter is ignored. If the \c hDragImageList parameter is set to
+		///                drag image's upper-left corner. If the \c hDragImgLst parameter is set to
+		///                \c NULL, this parameter is ignored. If the \c hDragImgLst parameter is set to
 		///                -1, this parameter is set to the hotspot calculated by the method.
 		///
 		/// \return An \c HRESULT error code.
 		///
 		/// \sa EndDrag
-		HRESULT BeginDrag(HWND hWndTabStrip, ITabStripTabContainer* pDraggedTabs, HIMAGELIST hDragImageList, PINT pXHotSpot, PINT pYHotSpot)
+		HRESULT BeginDrag(HWND hWndTabStrip, ITabStripTabContainer* pDraggedTbs, HIMAGELIST hDragImgLst, PINT pXHotSpot, PINT pYHotSpot)
 		{
-			ATLASSUME(pDraggedTabs);
-			if(!pDraggedTabs) {
+			ATLASSUME(pDraggedTbs);
+			if(!pDraggedTbs) {
 				return E_INVALIDARG;
 			}
 
 			UINT b = FALSE;
-			if(hDragImageList == static_cast<HIMAGELIST>(LongToHandle(-1))) {
+			if(hDragImgLst == static_cast<HIMAGELIST>(LongToHandle(-1))) {
 				OLE_HANDLE h = NULL;
 				OLE_XPOS_PIXELS xUpperLeft = 0;
 				OLE_YPOS_PIXELS yUpperLeft = 0;
-				if(FAILED(pDraggedTabs->CreateDragImage(&xUpperLeft, &yUpperLeft, &h))) {
+				if(FAILED(pDraggedTbs->CreateDragImage(&xUpperLeft, &yUpperLeft, &h))) {
 					return E_FAIL;
 				}
-				hDragImageList = static_cast<HIMAGELIST>(LongToHandle(h));
+				hDragImgLst = static_cast<HIMAGELIST>(LongToHandle(h));
 				b = TRUE;
 
 				DWORD position = GetMessagePos();
@@ -5787,7 +5787,7 @@ protected:
 				::ScreenToClient(hWndTabStrip, &mousePosition);
 				if(CWindow(hWndTabStrip).GetExStyle() & WS_EX_LAYOUTRTL) {
 					SIZE dragImageSize = {0};
-					ImageList_GetIconSize(hDragImageList, reinterpret_cast<PINT>(&dragImageSize.cx), reinterpret_cast<PINT>(&dragImageSize.cy));
+					ImageList_GetIconSize(hDragImgLst, reinterpret_cast<PINT>(&dragImageSize.cx), reinterpret_cast<PINT>(&dragImageSize.cy));
 					*pXHotSpot = xUpperLeft + dragImageSize.cx - mousePosition.x;
 				} else {
 					*pXHotSpot = mousePosition.x - xUpperLeft;
@@ -5800,12 +5800,12 @@ protected:
 			}
 
 			this->autoDestroyImgLst = b;
-			this->hDragImageList = hDragImageList;
+			this->hDragImageList = hDragImgLst;
 			if(this->pDraggedTabs) {
 				this->pDraggedTabs->Release();
 				this->pDraggedTabs = NULL;
 			}
-			pDraggedTabs->Clone(&this->pDraggedTabs);
+			pDraggedTbs->Clone(&this->pDraggedTabs);
 			ATLASSUME(this->pDraggedTabs);
 			this->lastDropTarget = -1;
 
@@ -5819,14 +5819,14 @@ protected:
 		/// \sa BeginDrag
 		void EndDrag(void)
 		{
-			if(pDraggedTabs) {
-				pDraggedTabs->Release();
-				pDraggedTabs = NULL;
+			if(this->pDraggedTabs) {
+				this->pDraggedTabs->Release();
+				this->pDraggedTabs = NULL;
 			}
-			if(autoDestroyImgLst && hDragImageList) {
-				ImageList_Destroy(hDragImageList);
+			if(autoDestroyImgLst && this->hDragImageList) {
+				ImageList_Destroy(this->hDragImageList);
 			}
-			hDragImageList = NULL;
+			this->hDragImageList = NULL;
 			dragImageIsHidden = 1;
 			lastDropTarget = -1;
 			autoScrolling.Reset();
@@ -5839,7 +5839,7 @@ protected:
 		/// \sa BeginDrag, EndDrag
 		BOOL IsDragging(void)
 		{
-			return (pDraggedTabs != NULL);
+			return (this->pDraggedTabs != NULL);
 		}
 
 		/// \brief <em>Performs any tasks that must be done if \c IDropTarget::DragEnter is called</em>

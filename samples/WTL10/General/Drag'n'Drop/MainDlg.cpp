@@ -196,11 +196,11 @@ void __stdcall CMainDlg::DropTabstripu(LPDISPATCH /*dropTarget*/, short /*button
 		_variant_t v;
 		v.Clear();
 		while(pEnum->Next(1, &v, &ul) == S_OK) {
-			CComQIPtr<ITabStripTab> pTab = v.pdispVal;
-			if(pTab->GetIndex() < insertAt) {
-				pTab->PutIndex(insertAt - 1);
+			CComQIPtr<ITabStripTab> pTab2 = v.pdispVal;
+			if(pTab2->GetIndex() < insertAt) {
+				pTab2->PutIndex(insertAt - 1);
 			} else {
-				pTab->PutIndex(insertAt);
+				pTab2->PutIndex(insertAt);
 				insertAt++;
 			}
 		}

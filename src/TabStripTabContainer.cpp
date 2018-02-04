@@ -216,19 +216,19 @@ STDMETHODIMP TabStripTabContainer::get__NewEnum(IUnknown** ppEnumerator)
 }
 
 
-STDMETHODIMP TabStripTabContainer::Add(VARIANT tabs)
+STDMETHODIMP TabStripTabContainer::Add(VARIANT tabsToAdd)
 {
 	HRESULT hr = E_FAIL;
 	LONG id = -1;
-	switch(tabs.vt) {
+	switch(tabsToAdd.vt) {
 		case VT_DISPATCH:
-			if(tabs.pdispVal) {
-				CComQIPtr<ITabStripTab, &IID_ITabStripTab> pTSTab = tabs.pdispVal;
+			if(tabsToAdd.pdispVal) {
+				CComQIPtr<ITabStripTab, &IID_ITabStripTab> pTSTab = tabsToAdd.pdispVal;
 				if(pTSTab) {
 					// add a single TabStripTab object
 					hr = pTSTab->get_ID(&id);
 				} else {
-					CComQIPtr<ITabStripTabs, &IID_ITabStripTabs> pTSTabs(tabs.pdispVal);
+					CComQIPtr<ITabStripTabs, &IID_ITabStripTabs> pTSTabs(tabsToAdd.pdispVal);
 					if(pTSTabs) {
 						// add a TabStripTabs collection
 						CComQIPtr<IEnumVARIANT, &IID_IEnumVARIANT> pEnumerator(pTSTabs);
@@ -276,7 +276,7 @@ STDMETHODIMP TabStripTabContainer::Add(VARIANT tabs)
 		default:
 			VARIANT v;
 			VariantInit(&v);
-			hr = VariantChangeType(&v, &tabs, 0, VT_UI4);
+			hr = VariantChangeType(&v, &tabsToAdd, 0, VT_UI4);
 			id = v.ulVal;
 			break;
 	}

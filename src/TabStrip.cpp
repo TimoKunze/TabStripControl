@@ -1084,9 +1084,9 @@ BOOL TabStrip::CreateLegacyOLEDragImage(ITabStripTabContainer* pTabs, LPSHDRAGIM
 			}
 			ATLASSUME(pImgLst);
 
-			DWORD flags = 0;
-			pImgLst->GetItemFlags(0, &flags);
-			if(flags & ILIF_ALPHA) {
+			DWORD imageFlags = 0;
+			pImgLst->GetItemFlags(0, &imageFlags);
+			if(imageFlags & ILIF_ALPHA) {
 				// the drag image makes use of the alpha channel
 				IMAGEINFO imageInfo = {0};
 				ImageList_GetImageInfo(hImageList, 0, &imageInfo);
@@ -4547,11 +4547,11 @@ STDMETHODIMP TabStrip::HitTest(OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y, HitTestCons
 	}
 
 	if(IsWindow()) {
-		UINT flags = static_cast<UINT>(*pHitTestDetails);
-		int tabIndex = HitTest(x, y, &flags, TRUE);
+		UINT hitTestFlags = static_cast<UINT>(*pHitTestDetails);
+		int tabIndex = HitTest(x, y, &hitTestFlags, TRUE);
 
 		if(pHitTestDetails) {
-			*pHitTestDetails = static_cast<HitTestConstants>(flags);
+			*pHitTestDetails = static_cast<HitTestConstants>(hitTestFlags);
 		}
 		ClassFactory::InitTabStripTab(tabIndex, this, IID_ITabStripTab, reinterpret_cast<LPUNKNOWN*>(ppHitTab));
 		return S_OK;
@@ -8426,11 +8426,11 @@ int TabStrip::HitTest(LONG x, LONG y, UINT* pFlags, BOOL ignoreBoundingBoxDefini
 {
 	ATLASSERT(IsWindow());
 
-	UINT flags = 0;
+	UINT hitTestFlags = 0;
 	if(pFlags) {
-		flags = *pFlags;
+		hitTestFlags = *pFlags;
 	}
-	TCHITTESTINFO hitTestInfo = {{x, y}, flags};
+	TCHITTESTINFO hitTestInfo = {{x, y}, hitTestFlags };
 	int tabIndex = SendMessage(TCM_HITTEST, 0, reinterpret_cast<LPARAM>(&hitTestInfo));
 
 	if(tabIndex == -1) {
@@ -8476,11 +8476,11 @@ int TabStrip::HitTest(LONG x, LONG y, UINT* pFlags, BOOL ignoreBoundingBoxDefini
 		}
 	}
 
-	flags = hitTestInfo.flags;
+	hitTestFlags = hitTestInfo.flags;
 	if(pFlags) {
-		*pFlags = flags;
+		*pFlags = hitTestFlags;
 	}
-	if(!ignoreBoundingBoxDefinition && ((properties.tabBoundingBoxDefinition & flags) != flags)) {
+	if(!ignoreBoundingBoxDefinition && ((properties.tabBoundingBoxDefinition & hitTestFlags) != hitTestFlags)) {
 		tabIndex = -1;
 	}
 	return tabIndex;
