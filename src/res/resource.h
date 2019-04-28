@@ -13,7 +13,7 @@
 #define VERSION_BUILD																184
 #define STRFILEVERSION															"1.10.5.184"
 #define STRPRODUCTVERSION														"1.10"
-#define STRTIMESTAMP																"2019/04/28 17:27:39"
+#define STRTIMESTAMP																"2019/04/28 17:30:14"
 
 #define IDB_TABSTRIP																1
 #define IDB_ABOUT																		2
