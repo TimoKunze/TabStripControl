@@ -259,7 +259,6 @@ Option Explicit
   Private lastDropTarget As Long
   Private ToolTip As clsToolTip
   Private themeableOS As Boolean
-  Private hFormBkBrush As Long
 
   Private Declare Function AllowDarkModeForWindow Lib "uxtheme.dll" Alias "#133" (ByVal hWnd As Long, ByVal bAllow As Long) As Long
   Private Declare Function AllowDarkModeForWindowWithParentFallback Lib "uxtheme.dll" Alias "#145" (ByVal hWnd As Long, ByVal bAutoThemeChange As Long) As Long
@@ -268,7 +267,6 @@ Option Explicit
   Private Declare Function CombineRgn Lib "gdi32.dll" (ByVal hrgnDest As Long, ByVal hrgnSrc1 As Long, ByVal hrgnSrc2 As Long, ByVal fnCombineMode As Long) As Long
   Private Declare Sub CopyMemory Lib "kernel32.dll" Alias "RtlMoveMemory" (ByVal pDest As Long, ByVal pSrc As Long, ByVal sz As Long)
   Private Declare Function CreateRectRgnIndirect Lib "gdi32.dll" (lprc As RECT) As Long
-  Private Declare Function CreateSolidBrush Lib "gdi32.dll" (ByVal crColor As Long) As Long
   Private Declare Function DeleteObject Lib "gdi32.dll" (ByVal hObject As Long) As Long
   Private Declare Function DestroyIcon Lib "user32.dll" (ByVal hIcon As Long) As Long
   Private Declare Function DllGetVersion_comctl32 Lib "comctl32.dll" Alias "DllGetVersion" (Data As DLLVERSIONINFO) As Long
@@ -393,8 +391,9 @@ Private Function HandleMessage_Form(ByVal hWnd As Long, ByVal uMsg As Long, ByVa
     
     Case WM_CTLCOLORBTN, WM_CTLCOLORSTATIC
       If bDarkModeActivated Then
-        lRet = hFormBkBrush
         bCallDefProc = False
+        SetDCBrushColor wParam, &H141414
+        lRet = GetStockObject(DC_BRUSH)
       End If
     
     Case WM_NOTIFYFORMAT
@@ -413,9 +412,6 @@ Private Function HandleMessage_Form(ByVal hWnd As Long, ByVal uMsg As Long, ByVa
           bDarkModeActivated = False
         End If
         If previousDarkModeActivated <> bDarkModeActivated Then
-          If bDarkModeActivated And hFormBkBrush = 0 Then
-            hFormBkBrush = CreateSolidBrush(&H141414)
-          End If
           SetupDarkMode
         End If
       End If
@@ -515,7 +511,8 @@ StdHandler_Error:
 End Function
 
 Private Function HandleMessage_TabStripU(ByVal hWnd As Long, ByVal uMsg As Long, ByVal wParam As Long, ByVal lParam As Long, bCallDefProc As Boolean) As Long
-  Const WM_PAINT As Long = &HF
+  Const DC_BRUSH = 18
+  Const WM_PAINT = &HF
   Dim lRet As Long
   Dim hDC As Long
   Dim rcClient As RECT
@@ -547,7 +544,8 @@ Private Function HandleMessage_TabStripU(ByVal hWnd As Long, ByVal uMsg As Long,
             isLastTab = False
           Next i
           ExcludeClipRect hDC, rcTabPage.Left, rcTabPage.Top, rcTabPage.Right, rcTabPage.Bottom
-          FillRect hDC, rcClient, hFormBkBrush
+          SetDCBrushColor hDC, &H141414
+          FillRect hDC, rcClient, GetStockObject(DC_BRUSH)
           ReleaseDC hWnd, hDC
         End If
         bCallDefProc = False
@@ -614,7 +612,6 @@ Private Sub Form_Initialize()
     SetPreferredAppMode AllowDark
     If ShouldAppsUseDarkMode Then
       bDarkModeActivated = True
-      hFormBkBrush = CreateSolidBrush(&H141414)
     End If
   End If
 
@@ -660,10 +657,6 @@ End Sub
 Private Sub Form_Terminate()
   If hImgLst Then ImageList_Destroy hImgLst
   Set ToolTip = Nothing
-  If hFormBkBrush Then
-    DeleteObject hFormBkBrush
-    hFormBkBrush = 0
-  End If
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
