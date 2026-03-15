@@ -5,7 +5,7 @@ Begin VB.Form frmMain
    ClientHeight    =   3975
    ClientLeft      =   60
    ClientTop       =   450
-   ClientWidth     =   6420
+   ClientWidth     =   6450
    BeginProperty Font 
       Name            =   "Tahoma"
       Size            =   8.25
@@ -20,7 +20,7 @@ Begin VB.Form frmMain
    LockControls    =   -1  'True
    ScaleHeight     =   265
    ScaleMode       =   3  'Pixel
-   ScaleWidth      =   428
+   ScaleWidth      =   430
    StartUpPosition =   2  'Bildschirmmitte
    Begin TabStripCtlLibUCtl.TabStrip TabStripU 
       Align           =   3  'Links ausrichten
@@ -28,8 +28,8 @@ Begin VB.Form frmMain
       Left            =   0
       TabIndex        =   2
       Top             =   0
-      Width           =   4695
-      _cx             =   8281
+      Width           =   4755
+      _cx             =   8387
       _cy             =   7011
       AllowDragDrop   =   -1  'True
       Appearance      =   0
@@ -81,7 +81,7 @@ Begin VB.Form frmMain
    Begin VB.CheckBox chkOLEDragDrop 
       Caption         =   "&OLE Drag'n'Drop"
       Height          =   255
-      Left            =   4800
+      Left            =   4860
       TabIndex        =   1
       Top             =   3600
       Width           =   1575
@@ -98,7 +98,7 @@ Begin VB.Form frmMain
          Strikethrough   =   0   'False
       EndProperty
       Height          =   375
-      Left            =   4920
+      Left            =   4980
       TabIndex        =   0
       Top             =   0
       Width           =   1335
@@ -393,7 +393,6 @@ Private Function HandleMessage_Form(ByVal hWnd As Long, ByVal uMsg As Long, ByVa
     
     Case WM_CTLCOLORBTN, WM_CTLCOLORSTATIC
       If bDarkModeActivated Then
-        SetBkMode hDC, 1
         lRet = hFormBkBrush
         bCallDefProc = False
       End If
