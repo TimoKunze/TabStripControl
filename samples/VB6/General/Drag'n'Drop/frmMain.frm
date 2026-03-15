@@ -1072,6 +1072,11 @@ Private Sub TabStripU_OLEStartDrag(ByVal Data As TabStripCtlLibUCtl.IOLEDataObje
 End Sub
 
 Private Sub TabStripU_RecreatedControlWindow(ByVal hWnd As Long)
+  #If UseSubClassing Then
+    If Not SubclassWindow(hWnd, Me, EnumSubclassID.escidFrmMainTabStripU) Then
+      Debug.Print "Subclassing failed!"
+    End If
+  #End If
   InsertTabs
   SetupDarkMode
 End Sub
