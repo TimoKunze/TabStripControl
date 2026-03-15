@@ -35,6 +35,7 @@ Begin VB.Form frmMain
       Appearance      =   0
       BorderStyle     =   0
       CloseableTabs   =   0   'False
+      CloseableTabsMode=   1
       DisabledEvents  =   262370
       DragActivateTime=   -1
       DragScrollTimeBase=   -1
@@ -164,6 +165,81 @@ Option Explicit
     Data4(0 To 7) As Byte
   End Type
 
+  Private Type RECT
+    Left As Long
+    Top As Long
+    Right As Long
+    Bottom As Long
+  End Type
+
+  Private Type Size
+    cx As Long
+    cy As Long
+  End Type
+  
+  Private Type MENUITEMINFO
+    cbSize As Long
+    fMask As Long
+    fType As Long
+    fState As Long
+    wID As Long
+    hSubMenu As Long
+    hbmpChecked As Long
+    hbmpUnchecked As Long
+    dwItemData As Long
+    dwTypeData As Long
+    cch As Long
+  End Type
+  
+  Private Type MENUBARINFO
+    cbSize As Long
+    rcBar As RECT
+    hMenu As Long
+    hwndMenu As Long
+    fFlags As Long
+  End Type
+
+  Private Type DRAWITEMSTRUCT
+    ctlType As Long
+    ctlID As Long
+    itemID As Long
+    itemAction As Long
+    itemState As Long
+    hwndItem As Long
+    hDC As Long
+    rcItem As RECT
+    itemData As Long
+  End Type
+  
+  Private Type UAHMENU
+    hMenu As Long
+    hDC As Long
+    dwFlags As Long
+  End Type
+  
+  Private Type UAHMENUITEMMETRICS
+    rgsizeBar1 As Size
+    rgsizeBar2 As Size
+    rgsizePopup3 As Size
+    rgsizePopup4 As Size
+  End Type
+  
+  Private Type UAHMENUPOPUPMETRICS
+    rgcx(0 To 3) As Long
+    fUpdateMaxWidths As Integer
+  End Type
+  
+  Private Type UAHMENUITEM
+    iPosition As Long
+    umim As UAHMENUITEMMETRICS
+    umpm As UAHMENUPOPUPMETRICS
+  End Type
+  
+  Private Type UAHDRAWMENUITEM
+    dis As DRAWITEMSTRUCT
+    um As UAHMENU
+    uni As UAHMENUITEM
+  End Type
 
   Private CFSTR_HTML As Long
   Private CFSTR_HTML2 As Long
@@ -174,26 +250,61 @@ Option Explicit
   Private CFSTR_TEXTHTML As Long
 
   Private bComctl32Version600OrNewer As Boolean
+  Private bDarkModeSupported As Boolean
+  Private bDarkModeActivated As Boolean
   Private bRightDrag As Boolean
   Private chosenMenuItem As ChosenMenuItemConstants
   Private CLSID_RecycleBin As GUID
   Private hImgLst As Long
   Private lastDropTarget As Long
   Private ToolTip As clsToolTip
+  Private themeableOS As Boolean
+  Private hFormBkBrush As Long
 
-
+  Private Declare Function AllowDarkModeForWindow Lib "uxtheme.dll" Alias "#133" (ByVal hWnd As Long, ByVal bAllow As Long) As Long
+  Private Declare Function AllowDarkModeForWindowWithParentFallback Lib "uxtheme.dll" Alias "#145" (ByVal hWnd As Long, ByVal bAutoThemeChange As Long) As Long
+  Private Declare Function CloseThemeData Lib "uxtheme.dll" (ByVal hTheme As Long) As Long
   Private Declare Function CLSIDFromString Lib "ole32.dll" (ByVal pString As Long, CLSID As GUID) As Long
+  Private Declare Function CombineRgn Lib "gdi32.dll" (ByVal hrgnDest As Long, ByVal hrgnSrc1 As Long, ByVal hrgnSrc2 As Long, ByVal fnCombineMode As Long) As Long
   Private Declare Sub CopyMemory Lib "kernel32.dll" Alias "RtlMoveMemory" (ByVal pDest As Long, ByVal pSrc As Long, ByVal sz As Long)
+  Private Declare Function CreateRectRgnIndirect Lib "gdi32.dll" (lprc As RECT) As Long
+  Private Declare Function CreateSolidBrush Lib "gdi32.dll" (ByVal crColor As Long) As Long
+  Private Declare Function DeleteObject Lib "gdi32.dll" (ByVal hObject As Long) As Long
   Private Declare Function DestroyIcon Lib "user32.dll" (ByVal hIcon As Long) As Long
   Private Declare Function DllGetVersion_comctl32 Lib "comctl32.dll" Alias "DllGetVersion" (Data As DLLVERSIONINFO) As Long
+  Private Declare Function DrawText Lib "user32.dll" Alias "DrawTextW" (ByVal hDC As Long, ByVal lpchText As Long, ByVal nCount As Long, ByVal lpRect As Long, ByVal uFormat As Long) As Long
+  Private Declare Function DrawThemeBackground Lib "uxtheme.dll" (ByVal hTheme As Long, ByVal hDC As Long, ByVal iPartId As Long, ByVal iStateId As Long, pRect As RECT, ByVal pClipRect As Long) As Long
+  Private Declare Function DrawThemeText Lib "uxtheme.dll" (ByVal hTheme As Long, ByVal hDC As Long, ByVal iPartId As Long, ByVal iStateId As Long, ByVal pszText As Long, ByVal cchText As Long, ByVal dwTextFlags As Long, ByVal dwTextFlags2 As Long, pRect As RECT) As Long
+  Private Declare Function DwmSetWindowAttribute Lib "dwmapi.dll" (ByVal hWnd As Long, ByVal dwAttribute As Long, ByVal pvAttribute As Long, ByVal cbAttribute As Long) As Long
+  Private Declare Function ExcludeClipRect Lib "gdi32.dll" (ByVal hDC As Long, ByVal nLeftRect As Long, ByVal nTopRect As Long, ByVal nRightRect As Long, ByVal nBottomRect As Long) As Long
+  Private Declare Function FillRect Lib "user32.dll" (ByVal hDC As Long, ByRef lpRect As RECT, ByVal hBrush As Long) As Long
+  Private Declare Function FreeLibrary Lib "kernel32.dll" (ByVal hLibModule As Long) As Long
+  Private Declare Function GetClientRect Lib "user32.dll" (ByVal hWnd As Long, lpRect As RECT) As Long
+  Private Declare Function GetMenuBarInfo Lib "user32.dll" (ByVal hWnd As Long, ByVal idObject As Long, ByVal idItem As Long, pmbi As MENUBARINFO) As Long
+  Private Declare Function GetMenuItemInfo Lib "user32.dll" Alias "GetMenuItemInfoW" (ByVal hMenu As Long, ByVal uItem As Long, ByVal fByPosition As Long, lpmii As MENUITEMINFO) As Long
+  Private Declare Function GetProcAddress Lib "kernel32" (ByVal hModule As Long, ByVal lpProcName As Long) As Long
+  Private Declare Function GetStockObject Lib "gdi32.dll" (ByVal i As Long) As Long
+  Private Declare Function GetThemeSysColorBrush Lib "uxtheme.dll" (ByVal hTheme As Long, ByVal iColorId As Long) As Long
+  Private Declare Function GetWindowDC Lib "user32.dll" (ByVal hWnd As Long) As Long
+  Private Declare Function GetWindowRect Lib "user32.dll" (ByVal hWnd As Long, lpRect As RECT) As Long
   Private Declare Function ImageList_AddIcon Lib "comctl32.dll" (ByVal himl As Long, ByVal hIcon As Long) As Long
   Private Declare Function ImageList_Create Lib "comctl32.dll" (ByVal cx As Long, ByVal cy As Long, ByVal flags As Long, ByVal cInitial As Long, ByVal cGrow As Long) As Long
   Private Declare Function ImageList_Destroy Lib "comctl32.dll" (ByVal himl As Long) As Long
   Private Declare Function ImageList_GetImageCount Lib "comctl32.dll" (ByVal himl As Long) As Long
   Private Declare Sub InitCommonControls Lib "comctl32.dll" ()
   Private Declare Function LoadImage Lib "user32.dll" Alias "LoadImageW" (ByVal hinst As Long, ByVal lpszName As Long, ByVal uType As Long, ByVal cxDesired As Long, ByVal cyDesired As Long, ByVal fuLoad As Long) As Long
+  Private Declare Function LoadLibrary Lib "kernel32.dll" Alias "LoadLibraryW" (ByVal lpLibFileName As Long) As Long
+  Private Declare Function MapWindowPoints Lib "user32.dll" (ByVal hwndFrom As Long, ByVal hWndTo As Long, ByVal lpPoints As Long, ByVal cPoints As Long) As Long
+  Private Declare Function OpenThemeData Lib "uxtheme.dll" (ByVal hWnd As Long, ByVal pszClassList As Long) As Long
   Private Declare Function RegisterClipboardFormat Lib "user32.dll" Alias "RegisterClipboardFormatW" (ByVal lpString As Long) As Long
+  Private Declare Function ReleaseDC Lib "user32.dll" (ByVal hWnd As Long, ByVal hDC As Long) As Long
   Private Declare Function SendMessageAsLong Lib "user32.dll" Alias "SendMessageW" (ByVal hWnd As Long, ByVal Msg As Long, ByVal wParam As Long, ByVal lParam As Long) As Long
+  Private Declare Function SetBkMode Lib "gdi32.dll" (ByVal hDC As Long, ByVal mode As Long) As Long
+  Private Declare Function SetDCBrushColor Lib "gdi32.dll" (ByVal hDC As Long, ByVal color As Long) As Long
+  Private Declare Function SetPreferredAppMode Lib "uxtheme.dll" Alias "#135" (ByVal lOption As Long) As Long
+  Private Declare Function SetTextColor Lib "gdi32.dll" (ByVal hDC As Long, ByVal crColor As Long) As Long
+  Private Declare Function SetWindowTheme Lib "uxtheme.dll" (ByVal hWnd As Long, ByVal pSubAppName As Long, ByVal pSubIDList As Long) As Long
+  Private Declare Function ShouldAppsUseDarkMode Lib "uxtheme.dll" Alias "#132" () As Long
 
 
 Private Function ISubclassedWindow_HandleMessage(ByVal hWnd As Long, ByVal uMsg As Long, ByVal wParam As Long, ByVal lParam As Long, ByVal eSubclassID As EnumSubclassID, bCallDefProc As Boolean) As Long
@@ -203,6 +314,8 @@ Private Function ISubclassedWindow_HandleMessage(ByVal hWnd As Long, ByVal uMsg 
   Select Case eSubclassID
     Case EnumSubclassID.escidFrmMain
       lRet = HandleMessage_Form(hWnd, uMsg, wParam, lParam, bCallDefProc)
+    Case EnumSubclassID.escidFrmMainTabStripU
+      lRet = HandleMessage_TabStripU(hWnd, uMsg, wParam, lParam, bCallDefProc)
     Case Else
       Debug.Print "frmMain.ISubclassedWindow_HandleMessage: Unknown Subclassing ID " & CStr(eSubclassID)
   End Select
@@ -217,18 +330,180 @@ StdHandler_Error:
 End Function
 
 Private Function HandleMessage_Form(ByVal hWnd As Long, ByVal uMsg As Long, ByVal wParam As Long, ByVal lParam As Long, bCallDefProc As Boolean) As Long
+  Const DC_BRUSH = 18
+  Const DT_CENTER = &H1
+  Const DT_HIDEPREFIX = &H100000
+  Const DT_SINGLELINE = &H20
+  Const DT_VCENTER = &H4
+  Const MENU_BARBACKGROUND = 7
+  Const MENU_BARITEM = 8
+  Const MIIM_STRING = &H40
+  Const MB_ACTIVE = 1
+  Const MB_INACTIVE = 2
+  Const MBI_NORMAL = 1
+  Const MBI_HOT = 2
+  Const MBI_PUSHED = 3
+  Const MBI_DISABLED = 4
+  Const MBI_DISABLEDHOT = 5
+  Const MBI_DISABLEDPUSHED = 6
+  Const OBJID_MENU = &HFFFFFFFD
+  Const ODS_SELECTED = &H1
+  Const ODS_GRAYED = &H2
+  Const ODS_DISABLED = &H4
+  Const ODS_DEFAULT = &H20
+  Const ODS_HOTLIGHT = &H40
+  Const ODS_INACTIVE = &H80
+  Const ODS_NOACCEL = &H100
+  Const TMT_MENUHILIGHT = 1630
+  Const TMT_MENUBAR = 1631
+  Const WM_ACTIVATE = &H6
+  Const WM_CTLCOLORBTN = &H135
+  Const WM_CTLCOLORSTATIC = &H138
   Const WM_NOTIFYFORMAT = &H55
+  Const WM_SETTINGCHANGE = &H1A
+  Const WM_SIZE = &H5
+  Const WM_THEMECHANGED = &H31A
+  Const WM_UAHDRAWMENU = &H91
+  Const WM_UAHDRAWMENUITEM = &H92
   Const WM_USER = &H400
+  Const WM_WINDOWPOSCHANGED = &H47
   Const OCM__BASE = WM_USER + &H1C00
   Dim lRet As Long
+  Dim mnuData As UAHMENU
+  Dim mnuItemData As UAHDRAWMENUITEM
+  Dim mnuBarInfo As MENUBARINFO
+  Dim miiData As MENUITEMINFO
+  Dim rcWindow As RECT
+  Dim hTheme As Long
+  Dim iBackgroundState As Long
+  Dim iTextState As Long
+  Dim textFlags As Long
+  Dim bytBuffer(0 To 512) As Byte
+  Dim previousColor As Long
+  Dim previousDarkModeActivated As Boolean
 
   On Error GoTo StdHandler_Error
   Select Case uMsg
+    Case WM_ACTIVATE, WM_SIZE, WM_WINDOWPOSCHANGED
+      If bDarkModeActivated Then
+        lRet = DefSubclassProc(hWnd, uMsg, wParam, lParam)
+        bCallDefProc = False
+        DrawMenuBarLine hWnd
+      End If
+    
+    Case WM_CTLCOLORBTN, WM_CTLCOLORSTATIC
+      If bDarkModeActivated Then
+        SetBkMode hDC, 1
+        lRet = hFormBkBrush
+        bCallDefProc = False
+      End If
+    
     Case WM_NOTIFYFORMAT
       ' give the control a chance to request Unicode notifications
       lRet = SendMessageAsLong(wParam, OCM__BASE + uMsg, wParam, lParam)
-
       bCallDefProc = False
+      
+    Case WM_SETTINGCHANGE, WM_THEMECHANGED
+      lRet = DefSubclassProc(hWnd, uMsg, wParam, lParam)
+      bCallDefProc = False
+      If bDarkModeSupported Then
+        previousDarkModeActivated = bDarkModeActivated
+        If ShouldAppsUseDarkMode Then
+          bDarkModeActivated = True
+        Else
+          bDarkModeActivated = False
+        End If
+        If previousDarkModeActivated <> bDarkModeActivated Then
+          If bDarkModeActivated And hFormBkBrush = 0 Then
+            hFormBkBrush = CreateSolidBrush(&H141414)
+          End If
+          SetupDarkMode
+        End If
+      End If
+    
+    Case WM_UAHDRAWMENU
+      If bDarkModeActivated Then
+        CopyMemory VarPtr(mnuData), lParam, LenB(mnuData)
+        mnuBarInfo.cbSize = LenB(mnuBarInfo)
+        If GetMenuBarInfo(hWnd, OBJID_MENU, 0, mnuBarInfo) Then
+          bCallDefProc = False
+          GetWindowRect hWnd, rcWindow
+          mnuBarInfo.rcBar.Left = mnuBarInfo.rcBar.Left - rcWindow.Left
+          mnuBarInfo.rcBar.Right = mnuBarInfo.rcBar.Right - rcWindow.Left
+          mnuBarInfo.rcBar.Top = mnuBarInfo.rcBar.Top - rcWindow.Top - 1
+          mnuBarInfo.rcBar.Bottom = mnuBarInfo.rcBar.Bottom - rcWindow.Top
+'          hTheme = OpenThemeData(hWnd, StrPtr("Menu"))
+'          If hTheme Then
+'            'DrawThemeBackground hTheme, mnuData.hDC, MENU_BARBACKGROUND, MB_ACTIVE, mnuBarInfo.rcBar, 0
+'            FillRect mnuData.hDC, mnuBarInfo.rcBar, GetThemeSysColorBrush(hTheme, TMT_MENUBAR)
+'            CloseThemeData hTheme
+'          End If
+          previousColor = SetDCBrushColor(mnuData.hDC, &H141414)
+          FillRect mnuData.hDC, mnuBarInfo.rcBar, GetStockObject(DC_BRUSH)
+          SetDCBrushColor mnuData.hDC, previousColor
+        End If
+      End If
+    
+    Case WM_UAHDRAWMENUITEM
+      If bDarkModeActivated Then
+        CopyMemory VarPtr(mnuItemData), lParam, LenB(mnuItemData)
+        miiData.cbSize = LenB(miiData)
+        miiData.fMask = MIIM_STRING
+        miiData.dwTypeData = VarPtr(bytBuffer(0))
+        miiData.cch = 256
+        If GetMenuItemInfo(mnuItemData.um.hMenu, mnuItemData.uni.iPosition, 1, miiData) Then
+          bCallDefProc = False
+          iBackgroundState = 0
+          If mnuItemData.dis.itemState And (ODS_INACTIVE Or ODS_DEFAULT) Then
+            iBackgroundState = MBI_NORMAL
+          End If
+          If mnuItemData.dis.itemState And ODS_HOTLIGHT Then
+            iBackgroundState = MBI_HOT
+          End If
+          If mnuItemData.dis.itemState And ODS_SELECTED Then
+            iBackgroundState = MBI_PUSHED
+          End If
+          If mnuItemData.dis.itemState And (ODS_GRAYED Or ODS_DISABLED) Then
+            iBackgroundState = MBI_DISABLED
+            If mnuItemData.dis.itemState And ODS_HOTLIGHT Then
+              iBackgroundState = MBI_DISABLEDHOT
+            End If
+            If mnuItemData.dis.itemState And ODS_SELECTED Then
+              iBackgroundState = MBI_DISABLEDPUSHED
+            End If
+          End If
+          iTextState = iBackgroundState
+          textFlags = DT_CENTER Or DT_SINGLELINE Or DT_VCENTER
+          If mnuItemData.dis.itemState And ODS_NOACCEL Then
+            textFlags = textFlags Or DT_HIDEPREFIX
+          End If
+'          hTheme = OpenThemeData(hWnd, StrPtr("Menu"))
+'          If hTheme Then
+'            'DrawThemeBackground hTheme, mnuItemData.um.hDC, MENU_BARITEM, iBackgroundState, mnuItemData.dis.rcItem, 0
+'            If iBackgroundState = MBI_HOT Or iBackgroundState = MBI_PUSHED Then
+'              FillRect mnuItemData.um.hDC, mnuItemData.dis.rcItem, GetThemeSysColorBrush(hTheme, TMT_MENUHILIGHT)
+'            Else
+'              FillRect mnuItemData.um.hDC, mnuItemData.dis.rcItem, GetThemeSysColorBrush(hTheme, TMT_MENUBAR)
+'            End If
+'            SetTextColor mnuItemData.um.hDC, &HDEDEDE
+'            SetBkMode mnuItemData.um.hDC, 1
+'            'DrawThemeText hTheme, mnuItemData.um.hDC, MENU_BARITEM, iTextState, miiData.dwTypeData, miiData.cch, textFlags, 0, mnuItemData.dis.rcItem
+'            DrawText mnuItemData.um.hDC, miiData.dwTypeData, miiData.cch, VarPtr(mnuItemData.dis.rcItem), textFlags
+'            CloseThemeData hTheme
+'          End If
+          If iBackgroundState = MBI_HOT Or iBackgroundState = MBI_PUSHED Then
+            previousColor = SetDCBrushColor(mnuItemData.um.hDC, &H414141)
+          Else
+            previousColor = SetDCBrushColor(mnuItemData.um.hDC, &H141414)
+          End If
+          FillRect mnuItemData.um.hDC, mnuItemData.dis.rcItem, GetStockObject(DC_BRUSH)
+          SetDCBrushColor mnuItemData.um.hDC, previousColor
+          previousColor = SetTextColor(mnuItemData.um.hDC, &HDEDEDE)
+          SetBkMode mnuItemData.um.hDC, 1
+          DrawText mnuItemData.um.hDC, miiData.dwTypeData, miiData.cch, VarPtr(mnuItemData.dis.rcItem), textFlags
+          SetTextColor mnuItemData.um.hDC, previousColor
+        End If
+      End If
   End Select
 
 StdHandler_Ende:
@@ -237,6 +512,55 @@ StdHandler_Ende:
 
 StdHandler_Error:
   Debug.Print "Error in frmMain.HandleMessage_Form: ", Err.Number, Err.Description
+  Resume StdHandler_Ende
+End Function
+
+Private Function HandleMessage_TabStripU(ByVal hWnd As Long, ByVal uMsg As Long, ByVal wParam As Long, ByVal lParam As Long, bCallDefProc As Boolean) As Long
+  Const WM_PAINT As Long = &HF
+  Dim lRet As Long
+  Dim hDC As Long
+  Dim rcClient As RECT
+  Dim rcTabPage As RECT
+  Dim hRgn As Long
+  Dim i As Long
+  Dim tsTab As TabStripTab
+  Dim isLastTab As Boolean
+
+  On Error GoTo StdHandler_Error
+  Select Case uMsg
+    Case WM_PAINT
+      If bDarkModeActivated Then
+        lRet = DefSubclassProc(hWnd, uMsg, wParam, lParam)
+        GetClientRect hWnd, rcClient
+        hDC = GetWindowDC(hWnd)
+        If hDC Then
+          rcTabPage.Bottom = rcClient.Bottom
+          rcTabPage.Left = rcClient.Left
+          rcTabPage.Top = -999999
+          rcTabPage.Right = rcClient.Right
+          isLastTab = True
+          For i = TabStripU.Tabs.Count - 1 To 0 Step -1
+            Set tsTab = TabStripU.Tabs.Item(i)
+            ExcludeClipRect hDC, tsTab.Left - IIf(tsTab.Active, 2, 0), tsTab.Top - IIf(tsTab.Active, 2, 0), tsTab.Left + tsTab.Width - IIf(isLastTab And Not tsTab.Active, 2, -2), tsTab.Top + tsTab.Height
+            If tsTab.Top + tsTab.Height > rcTabPage.Top Then
+              rcTabPage.Top = tsTab.Top + tsTab.Height
+            End If
+            isLastTab = False
+          Next i
+          ExcludeClipRect hDC, rcTabPage.Left, rcTabPage.Top, rcTabPage.Right, rcTabPage.Bottom
+          FillRect hDC, rcClient, hFormBkBrush
+          ReleaseDC hWnd, hDC
+        End If
+        bCallDefProc = False
+      End If
+  End Select
+
+StdHandler_Ende:
+  HandleMessage_TabStripU = lRet
+  Exit Function
+
+StdHandler_Error:
+  Debug.Print "Error in frmMain.HandleMessage_TabStripU: ", Err.Number, Err.Description
   Resume StdHandler_Ende
 End Function
 
@@ -252,8 +576,10 @@ Private Sub Form_Initialize()
   Const IMAGE_ICON = 1
   Const LR_DEFAULTSIZE = &H40
   Const LR_LOADFROMFILE = &H10
+  Const AllowDark = 1
   Dim DLLVerData As DLLVERSIONINFO
   Dim hIcon As Long
+  Dim hMod As Long
   Dim iconsDir As String
   Dim iconPath As String
 
@@ -275,6 +601,23 @@ Private Sub Form_Initialize()
     DllGetVersion_comctl32 DLLVerData
     bComctl32Version600OrNewer = (.dwMajor >= 6)
   End With
+
+  hMod = LoadLibrary(StrPtr("uxtheme.dll"))
+  If hMod Then
+    themeableOS = True
+    If GetProcAddress(hMod, 135) <> 0 And GetProcAddress(hMod, 132) <> 0 Then
+      bDarkModeSupported = True
+    End If
+    FreeLibrary hMod
+  End If
+
+  If bDarkModeSupported Then
+    SetPreferredAppMode AllowDark
+    If ShouldAppsUseDarkMode Then
+      bDarkModeActivated = True
+      hFormBkBrush = CreateSolidBrush(&H141414)
+    End If
+  End If
 
   hImgLst = ImageList_Create(16, 16, IIf(bComctl32Version600OrNewer, ILC_COLOR32, ILC_COLOR24) Or ILC_MASK, 14, 0)
   If Right$(App.Path, 3) = "bin" Then
@@ -312,11 +655,16 @@ Private Sub Form_Load()
   Subclass
 
   InsertTabs
+  SetupDarkMode
 End Sub
 
 Private Sub Form_Terminate()
   If hImgLst Then ImageList_Destroy hImgLst
   Set ToolTip = Nothing
+  If hFormBkBrush Then
+    DeleteObject hFormBkBrush
+    hFormBkBrush = 0
+  End If
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
@@ -726,6 +1074,7 @@ End Sub
 
 Private Sub TabStripU_RecreatedControlWindow(ByVal hWnd As Long)
   InsertTabs
+  SetupDarkMode
 End Sub
 
 Private Sub TabStripU_TabBeginDrag(ByVal tsTab As TabStripCtlLibUCtl.ITabStripTab, ByVal button As Integer, ByVal shift As Integer, ByVal x As Single, ByVal y As Single, ByVal hitTestDetails As TabStripCtlLibUCtl.HitTestConstants)
@@ -824,5 +1173,68 @@ Private Sub Subclass()
     End If
     ' tell the control to negotiate the correct format with the form
     SendMessageAsLong TabStripU.hWnd, WM_NOTIFYFORMAT, Me.hWnd, NF_REQUERY
+    If Not SubclassWindow(TabStripU.hWnd, Me, EnumSubclassID.escidFrmMainTabStripU) Then
+      Debug.Print "Subclassing failed!"
+    End If
   #End If
+End Sub
+
+Private Sub SetupDarkMode()
+  Const DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+  Dim useImmersiveDarkMode As Long
+  
+  If bDarkModeActivated Then
+    useImmersiveDarkMode = 1
+    DwmSetWindowAttribute Me.hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, VarPtr(useImmersiveDarkMode), LenB(useImmersiveDarkMode)
+    'AllowDarkModeForWindow Me.hWnd, 1
+    'AllowDarkModeForWindowWithParentFallback Me.hWnd, 1
+    SetWindowTheme TabStripU.hWnd, StrPtr("DarkMode_DarkTheme"), 0
+    SetWindowTheme cmdAbout.hWnd, StrPtr("DarkMode_DarkTheme"), 0
+    SetWindowTheme chkOLEDragDrop.hWnd, StrPtr("DarkMode_DarkTheme"), 0
+    SetWindowTheme ToolTip.hWnd, StrPtr("DarkMode_Explorer"), StrPtr("Tooltip")
+    Me.BackColor = &H141414
+  ElseIf themeableOS Then
+    useImmersiveDarkMode = 0
+    DwmSetWindowAttribute Me.hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, VarPtr(useImmersiveDarkMode), LenB(useImmersiveDarkMode)
+    SetWindowTheme TabStripU.hWnd, StrPtr("Tab"), 0
+    SetWindowTheme cmdAbout.hWnd, StrPtr("Button"), 0
+    SetWindowTheme chkOLEDragDrop.hWnd, StrPtr("Button"), 0
+    SetWindowTheme ToolTip.hWnd, StrPtr("Tooltip"), 0
+    Me.BackColor = vbButtonFace
+  End If
+End Sub
+
+Private Sub DrawMenuBarLine(ByVal hWnd As Long)
+  Const DC_BRUSH = 18
+  Const OBJID_MENU = &HFFFFFFFD
+  Dim mnuBarInfo As MENUBARINFO
+  Dim rcClient As RECT
+  Dim rcWindow As RECT
+  Dim rcAnnoyingLine As RECT
+  Dim hDC As Long
+  Dim previousColor As Long
+
+  If bDarkModeActivated Then
+    mnuBarInfo.cbSize = LenB(mnuBarInfo)
+    If GetMenuBarInfo(hWnd, OBJID_MENU, 0, mnuBarInfo) Then
+      GetClientRect hWnd, rcClient
+      MapWindowPoints hWnd, 0, VarPtr(rcClient), 2
+      GetWindowRect hWnd, rcWindow
+      
+      rcAnnoyingLine.Left = rcClient.Left - rcWindow.Left
+      rcAnnoyingLine.Right = rcClient.Right - rcWindow.Left
+      rcAnnoyingLine.Top = rcClient.Top - rcWindow.Top
+      rcAnnoyingLine.Bottom = rcClient.Bottom - rcWindow.Top
+      rcAnnoyingLine.Bottom = rcAnnoyingLine.Top
+      rcAnnoyingLine.Top = rcAnnoyingLine.Top - 1
+      
+      hDC = GetWindowDC(hWnd)
+      If hDC Then
+        previousColor = SetDCBrushColor(hDC, &H191919)
+        FillRect hDC, rcAnnoyingLine, GetStockObject(DC_BRUSH)
+        SetDCBrushColor hDC, previousColor
+        ReleaseDC hWnd, hDC
+      End If
+    End If
+  End If
 End Sub

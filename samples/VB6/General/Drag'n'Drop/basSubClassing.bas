@@ -3,6 +3,7 @@ Option Explicit
 
   Public Enum EnumSubclassID
     escidFrmMain = 1
+    escidFrmMainTabStripU = 2
   End Enum
 
 
